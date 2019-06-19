@@ -1,7 +1,7 @@
-from pkg_resources import resource_string
 from collections import namedtuple
 from string import ascii_uppercase
 import json
+import os
 
 ASCII_UPPERCASE = set(ascii_uppercase)
 Airport = namedtuple('Airport', ['name', 'city', 'country', 'iata', 'icao', 'lat', 'lon', 'alt', 'tz', 'dst', 'tzdb'])
@@ -25,8 +25,15 @@ Other = namedtuple('Other', ['iata', 'name', 'country', 'subdiv', 'type', 'lat',
 # approximation for 2009, built on a country level. Most airports in DST-less regions in countries that generally
 # observe DST (eg. AL, HI in the USA, NT, QL in Australia, parts of Canada) are marked incorrectly.
 
-AIRPORT_LIST = json.loads(resource_string('pyairports', 'data/airport_list.json'))
-OTHER_LIST = json.loads(resource_string('pyairports', 'data/other_list.json'))
+with open('data/airport_list.json', 'rb') as file: # changed filepath and didn't use pkg_resources package
+    AIRPORT_LIST = json.load(file) # changing to load somehow doesn't error out
+
+with open('data/other_list.json', 'rb') as file:
+    OTHER_LIST = json.load(file)
+
+# replaced below wth above
+# AIRPORT_LIST = json.loads(resource_string('pyairports', 'data/airport_list.json'))
+# OTHER_LIST = json.loads(resource_string('pyairports', 'data/other_list.json'))
 
 
 class AirportNotFoundException(Exception):
@@ -47,8 +54,9 @@ class Airports(object):
 
     @staticmethod
     def _validate(iata):
-        if not isinstance(iata, (str, unicode)):
-            raise ValueError("iata must be a string, it is a {0}".format(type(iata)))
+        # no idea what 'unicode' did, but it doesn't anymore so I commented it out
+        #if not isinstance(iata, (str, unicode)):
+        #    raise ValueError("iata must be a string, it is a {0}".format(type(iata)))
         iata = iata.strip().upper()
         if not len(iata) == 3:
             raise ValueError("iata must be three characters")
